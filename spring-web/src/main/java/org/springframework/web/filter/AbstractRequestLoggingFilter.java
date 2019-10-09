@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.function.Predicate;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -321,7 +322,8 @@ public abstract class AbstractRequestLoggingFilter extends OncePerRequestFilter 
 	protected String createMessage(HttpServletRequest request, String prefix, String suffix) {
 		StringBuilder msg = new StringBuilder();
 		msg.append(prefix);
-		msg.append("uri=").append(request.getRequestURI());
+		msg.append(request.getMethod()).append(" ");
+		msg.append(request.getRequestURI());
 
 		if (isIncludeQueryString()) {
 			String queryString = request.getQueryString();
@@ -333,15 +335,15 @@ public abstract class AbstractRequestLoggingFilter extends OncePerRequestFilter 
 		if (isIncludeClientInfo()) {
 			String client = request.getRemoteAddr();
 			if (StringUtils.hasLength(client)) {
-				msg.append(";client=").append(client);
+				msg.append(", client=").append(client);
 			}
 			HttpSession session = request.getSession(false);
 			if (session != null) {
-				msg.append(";session=").append(session.getId());
+				msg.append(", session=").append(session.getId());
 			}
 			String user = request.getRemoteUser();
 			if (user != null) {
-				msg.append(";user=").append(user);
+				msg.append(", user=").append(user);
 			}
 		}
 
@@ -356,13 +358,13 @@ public abstract class AbstractRequestLoggingFilter extends OncePerRequestFilter 
 					}
 				}
 			}
-			msg.append(";headers=").append(headers);
+			msg.append(", headers=").append(headers);
 		}
 
 		if (isIncludePayload()) {
 			String payload = getMessagePayload(request);
 			if (payload != null) {
-				msg.append(";payload=").append(payload);
+				msg.append(", payload=").append(payload);
 			}
 		}
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,15 @@ import org.springframework.core.type.AnnotationMetadata;
  * <li>{@link org.springframework.beans.factory.BeanFactoryAware BeanFactoryAware}</li>
  * <li>{@link org.springframework.beans.factory.BeanClassLoaderAware BeanClassLoaderAware}</li>
  * <li>{@link org.springframework.context.ResourceLoaderAware ResourceLoaderAware}</li>
+ * </ul>
+ *
+ * <p>Alternatively, the class may provide a single constructor with one or more of
+ * the following supported parameter types:
+ * <ul>
+ * <li>{@link org.springframework.core.env.Environment Environment}</li>
+ * <li>{@link org.springframework.beans.factory.BeanFactory BeanFactory}</li>
+ * <li>{@link java.lang.ClassLoader ClassLoader}</li>
+ * <li>{@link org.springframework.core.io.ResourceLoader ResourceLoader}</li>
  * </ul>
  *
  * <p>{@code ImportSelector} implementations are usually processed in the same way

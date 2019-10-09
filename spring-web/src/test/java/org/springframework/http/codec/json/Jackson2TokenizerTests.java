@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,32 +27,32 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import org.json.JSONException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import org.springframework.core.codec.DecodingException;
-import org.springframework.core.io.buffer.AbstractLeakCheckingTestCase;
+import org.springframework.core.io.buffer.AbstractLeakCheckingTests;
 import org.springframework.core.io.buffer.DataBuffer;
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  */
-public class Jackson2TokenizerTests extends AbstractLeakCheckingTestCase {
+public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
 
 	private JsonFactory jsonFactory;
 
 	private ObjectMapper objectMapper;
 
 
-	@Before
+	@BeforeEach
 	public void createParser() {
 		this.jsonFactory = new JsonFactory();
 		this.objectMapper = new ObjectMapper(this.jsonFactory);
@@ -184,22 +184,18 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTestCase {
 	@Test
 	public void errorInStream() {
 		DataBuffer buffer = stringBuffer("{\"id\":1,\"name\":");
-		Flux<DataBuffer> source = Flux.just(buffer)
-				.concatWith(Flux.error(new RuntimeException()));
-
-		Flux<TokenBuffer> result = Jackson2Tokenizer.tokenize(
-				source, this.jsonFactory, this.objectMapper.getDeserializationContext(), true);
+		Flux<DataBuffer> source = Flux.just(buffer).concatWith(Flux.error(new RuntimeException()));
+		Flux<TokenBuffer> result = Jackson2Tokenizer.tokenize(source, this.jsonFactory, this.objectMapper, true);
 
 		StepVerifier.create(result)
 				.expectError(RuntimeException.class)
 				.verify();
 	}
 
-	@Test // SPR-16521
+	@Test  // SPR-16521
 	public void jsonEOFExceptionIsWrappedAsDecodingError() {
 		Flux<DataBuffer> source = Flux.just(stringBuffer("{\"status\": \"noClosingQuote}"));
-		Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
-				source, this.jsonFactory, this.objectMapper.getDeserializationContext(), false);
+		Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(source, this.jsonFactory, this.objectMapper, false);
 
 		StepVerifier.create(tokens)
 				.expectError(DecodingException.class)
@@ -208,12 +204,11 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTestCase {
 
 
 	private void testTokenize(List<String> source, List<String> expected, boolean tokenizeArrayElements) {
-		Flux<TokenBuffer> tokenBufferFlux = Jackson2Tokenizer.tokenize(
+		Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
 				Flux.fromIterable(source).map(this::stringBuffer),
-				this.jsonFactory, this.objectMapper.getDeserializationContext(),
-				tokenizeArrayElements);
+				this.jsonFactory, this.objectMapper, tokenizeArrayElements);
 
-		Flux<String> result = tokenBufferFlux
+		Flux<String> result = tokens
 				.map(tokenBuffer -> {
 					try {
 						TreeNode root = this.objectMapper.readTree(tokenBuffer.asParser());
